@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:lab/simpletab.dart';
 
 void main() => runApp(MyApp());
 
