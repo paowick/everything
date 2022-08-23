@@ -1,112 +1,78 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application/simpletab.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+  static const String _title = 'Flutter Code Sample';
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      initialRoute: '/',
-      routes: {
-        '/': (context) => MyHomePage(),
-        '/second': (context) => SecondScreen(),
-        '/simpletab': (context) => SimpleTap(),
-      },
+    return const MaterialApp(
+      title: _title,
+      home: MyStatefulWidget(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class MyStatefulWidget extends StatefulWidget {
+  const MyStatefulWidget({Key? key}) : super(key: key);
+  @override
+  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+}
+
+class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const List<Widget> _widgetOpions = <Widget>[
+    Text(
+      'index 0l Home',
+      style: optionStyle,
+    ),
+    Text(
+      'index 02 Business',
+      style: optionStyle,
+    ),
+    Text(
+      'index 03 School',
+      style: optionStyle,
+    ),
+    Text(
+      'เป็นได้แค่คนในจอ แต่ไม่มีค่าพอเท่ากันคนในใจ',
+      style: optionStyle,
+    ),
+  ];
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hello World'),
+        title: const Text('BottomNavigationBar Sample'),
       ),
-      backgroundColor: Colors.blueAccent,
-      //body=============================================================
-      body: Container(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                ElevatedButton(
-                  child: Text('SimpleTap'),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/simpletab');
-                  },
-                ),
-                ElevatedButton(
-                  child: Text('two'),
-                  onPressed: () {
-                    //Navigator.pushNamed(context, '/second');
-                    Navigator.pushReplacementNamed(context, '/second');
-                  },
-                ),
-                Text('Two'),
-              ],
-            )
-          ],
-        ),
+      body: Center(
+        child: _widgetOpions.elementAt(_selectedIndex),
       ),
-    );
-  }
-}
-
-class SecondScreen extends StatefulWidget {
-  const SecondScreen({Key? key}) : super(key: key);
-
-  @override
-  State<SecondScreen> createState() => _SecondScreenState();
-}
-
-class _SecondScreenState extends State<SecondScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Second Page'),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.shifting,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.business), label: 'business'),
+          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'school'),
+          BottomNavigationBarItem(icon: Icon(Icons.ads_click), label: "คำคม")
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.teal[800],
+        unselectedItemColor: Colors.teal[200],
+        onTap: _onItemTapped,
       ),
-      body: ElevatedButton(
-        child: Text('one'),
-        onPressed: () {
-          Navigator.popAndPushNamed(context, '/');
-        },
-      ),
-    );
-  }
-}
-
-class GreenFrong extends StatelessWidget {
-  const GreenFrong({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.blue,
-    );
-  }
-}
-
-class YellowBird extends StatefulWidget {
-  const YellowBird({Key? key}) : super(key: key);
-
-  @override
-  State<YellowBird> createState() => _YellowBirdState();
-}
-
-class _YellowBirdState extends State<YellowBird> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.yellow,
     );
   }
 }
