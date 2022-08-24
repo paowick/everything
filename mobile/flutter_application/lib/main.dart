@@ -1,4 +1,5 @@
-
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(const MyApp());
 
@@ -38,10 +39,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       'index 03 School',
       style: optionStyle,
     ),
-    Text(
-      'เป็นได้แค่คนในจอ แต่ไม่มีค่าพอเท่ากันคนในใจ',
-      style: optionStyle,
-    ),
+    _myListView(),
   ];
   void _onItemTapped(int index) {
     setState(() {
@@ -72,6 +70,42 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         unselectedItemColor: Colors.teal[200],
         onTap: _onItemTapped,
       ),
+    );
+  }
+}
+
+class _myListView extends StatelessWidget {
+  const _myListView({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        ListTile(
+          leading: CircleAvatar(child: Icon(Icons.local_hospital)),
+          title: Text('Hospital'),
+          onTap: () {
+            print('Hospital');
+          },
+        ),
+        ListTile(
+          leading: const CircleAvatar(
+            foregroundImage: NetworkImage(
+                'https://www.techhub.in.th/wp-content/uploads/2021/05/577280151-1.jpg'),
+          ),
+          title: Text('Police Station'),
+          onTap: () {
+            print('Police Station');
+          },
+        ),
+        ListTile(
+          leading: CircleAvatar(child: Icon(Icons.star)),
+          title: Text('Attraction'),
+          onTap: () {
+            print('Attraction');
+          },
+        ),
+      ],
     );
   }
 }
