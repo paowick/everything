@@ -1,111 +1,259 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(const MyHome());
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-  static const String _title = 'Flutter Code Sample';
+class MyHome extends StatelessWidget {
+  final appTitle = 'Example Form';
+
+  const MyHome({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: _title,
-      home: MyStatefulWidget(),
+    return MaterialApp(
+      title: appTitle,
+      initialRoute: '/',
+      routes: {
+        '/second': (context) => SecondScreen(),
+      },
+      home: MyApp(title: appTitle),
     );
   }
 }
 
-class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({Key? key}) : super(key: key);
-  @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
-}
+class MyApp extends StatelessWidget {
+  final String title;
 
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOpions = <Widget>[
-    Text(
-      'index 0l Home',
-      style: optionStyle,
-    ),
-    Text(
-      'index 02 Business',
-      style: optionStyle,
-    ),
-    Text(
-      'index 03 School',
-      style: optionStyle,
-    ),
-    _myListView(),
-  ];
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  const MyApp({Key? key, required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BottomNavigationBar Sample'),
+        title: const Text('Flutter Demo'),
+      ),
+      drawer: Drawer(
+        child: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              const UserAccountsDrawerHeader(
+                accountName: Text('korakrit'),
+                accountEmail: Text('1163104620070@mail.rmutt.ac.th'),
+                currentAccountPicture: CircleAvatar(
+                  child: FlutterLogo(
+                    size: 42,
+                  ),
+                ),
+              ),
+              ListTile(
+                  title: Text('second page'),
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, '/second');
+                  }),
+              ListTile(
+                title: Text('Item 2'),
+                onTap: () {},
+              )
+            ],
+          ),
+        ),
       ),
       body: Center(
-        child: _widgetOpions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.shifting,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.business), label: 'business'),
-          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'school'),
-          BottomNavigationBarItem(icon: Icon(Icons.ads_click), label: "คำคม")
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.teal[800],
-        unselectedItemColor: Colors.teal[200],
-        onTap: _onItemTapped,
+          child: ListView(children: const <Widget>[
+        MyRadio(),
+      ])),
+    );
+  }
+}
+
+class MyRadio extends StatefulWidget {
+  const MyRadio({Key? key}) : super(key: key);
+
+  @override
+  _MyRadioState createState() => _MyRadioState();
+}
+
+class _MyRadioState extends State<MyRadio> {
+  dynamic sex;
+  List<String> provices = ['', 'BKK', 'Pathumthani', 'Outbound'];
+  dynamic provice = '';
+  final _format = DateFormat('dd/MM/yyyy');
+  File? _avatar;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            TextFormField(
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.person),
+                prefix: Text('Mr.A'),
+                prefixIconColor: Colors.blue,
+              ),
+            ),
+            Row(children: [
+              Radio(
+                value: 'M',
+                groupValue: sex,
+                onChanged: (value) {
+                  setState(() {
+                    sex = value;
+                  });
+                },
+              ),
+              const Text('Male'),
+              Radio(
+                value: 'F',
+                groupValue: sex,
+                onChanged: (value) {
+// _handleTapboxChanged(value);
+                  setState(() {
+                    sex = value;
+                  });
+                },
+              ),
+              const Text('FeMale'),
+            ]),
+            Row(children: [
+              Text('$sex'),
+            ]),
+            chech(),
+            buildSelectField(),
+            buildDateField(),
+            _avatar == null
+            ? ElevatedButton(onPressed: (){
+              onChooseImage();
+            }, child: const Text('shoose avater')):Image.file(_avatar!),
+
+          ]),
+    );
+  }
+
+  onChooseImage() async {
+    final picker = ImagePicker();
+
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+    setState(() {
+      if (pickedFile != null) {
+        _avatar = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
+
+  DateTimeField buildDateField() {
+    return DateTimeField(
+      decoration: InputDecoration(labelText: 'Birth Date'),
+      format: _format,
+      onShowPicker: (context, currentValue) {
+        return showDatePicker(
+            context: context,
+            firstDate: DateTime(1900),
+            initialDate: currentValue ?? DateTime.now(),
+            lastDate: DateTime(2100));
+      },
+    );
+  }
+
+  InputDecorator buildSelectField() {
+    return InputDecorator(
+      decoration: const InputDecoration(labelText: 'Province'),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton(
+          value: provice,
+          onChanged: (value) {
+            setState(() {
+              provice = value;
+            });
+          },
+          items: provices
+              .map(
+                (value) => DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }
 }
 
-class _myListView extends StatelessWidget {
-  const _myListView({Key? key}) : super(key: key);
+class chech extends StatefulWidget {
+  const chech({Key? key}) : super(key: key);
+
+  @override
+  State<chech> createState() => _chechState();
+}
+
+class _chechState extends State<chech> {
+  bool checkboxValueA = true;
+  bool checkboxValueB = true;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        ListTile(
-          leading: CircleAvatar(child: Icon(Icons.local_hospital)),
-          title: Text('Hospital'),
-          onTap: () {
-            print('Hospital');
-          },
-        ),
-        ListTile(
-          leading: const CircleAvatar(
-            foregroundImage: NetworkImage(
-                'https://www.techhub.in.th/wp-content/uploads/2021/05/577280151-1.jpg'),
+    return Container(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Checkbox(
+                  value: checkboxValueA,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      checkboxValueA = value!;
+                    });
+                  }),
+              const Text('CheckBox A'),
+              Checkbox(
+                  value: checkboxValueB,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      checkboxValueB = value!;
+                    });
+                  }),
+              const Text('CheckBox B'),
+            ],
           ),
-          title: Text('Police Station'),
-          onTap: () {
-            print('Police Station');
-          },
-        ),
-        ListTile(
-          leading: CircleAvatar(child: Icon(Icons.star)),
-          title: Text('Attraction'),
-          onTap: () {
-            print('Attraction');
-          },
-        ),
-      ],
+          Row(
+            children: [Text('$checkboxValueA'), Text('$checkboxValueB')],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SecondScreen extends StatefulWidget {
+  const SecondScreen({Key? key}) : super(key: key);
+
+  @override
+  State<SecondScreen> createState() => _SecondScreenState();
+}
+
+class _SecondScreenState extends State<SecondScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Second Page'),
+      ),
+      body: ElevatedButton(
+        child: Text('one'),
+        onPressed: () {
+          Navigator.popAndPushNamed(context, '/');
+        },
+      ),
     );
   }
 }
