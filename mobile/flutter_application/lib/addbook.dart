@@ -1,0 +1,123 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class AddBookPage extends StatefulWidget {
+  const AddBookPage({super.key});
+
+  @override
+  State<AddBookPage> createState() => _AddBookPageState();
+}
+
+class _AddBookPageState extends State<AddBookPage> {
+  final _from = GlobalKey<FormState>();
+  final _title = TextEditingController();
+  final _detail = TextEditingController();
+  final _price = TextEditingController();
+  final _author = TextEditingController();
+  final store = FirebaseFirestore.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add book'),
+      ),
+      body: Form(
+        key: _from,
+        child: ListView(
+          children: <Widget>[
+            buildTitleField(),
+            buildDetailField(),
+            buildauthorField(),
+            buildPriceField(),
+            buildSaveButton()
+          ],
+        ),
+      ),
+    );
+  }
+
+  ElevatedButton buildSaveButton() {
+    print(_from);
+    return ElevatedButton(
+      child: const Text('Save'),
+      onPressed: () async {
+        if (_from.currentState!.validate()) {
+          print('save button press');
+          Map<String, dynamic> data = {
+            'title': _title.text,
+            'detail': _detail.text,
+            'author': _author.text,
+            'price': double.parse(_price.text)
+          };
+          try {
+            DocumentReference ref = await store.collection('books').add(data);
+            print('save id = ${ref.id}');
+            Navigator.pop(context);
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error $e')),
+            );
+          }
+        } else {}
+      },
+    );
+  }
+
+  TextFormField buildTitleField() {
+    return TextFormField(
+      controller: _title,
+      decoration: const InputDecoration(
+        labelText: 'title',
+        icon: Icon(Icons.book),
+      ),
+      validator: (value) => value!.isEmpty ? 'Please fill in title' : null,
+    );
+  }
+
+  TextFormField buildDetailField() {
+    return TextFormField(
+      controller: _detail,
+      decoration: const InputDecoration(
+        labelText: 'detail',
+        icon: Icon(Icons.list),
+      ),
+      validator: (value) => value!.isEmpty ? 'Please fill in detail' : null,
+    );
+  }
+
+  TextFormField buildauthorField() {
+    return TextFormField(
+      controller: _author,
+      decoration: const InputDecoration(
+        labelText: 'author',
+        icon: Icon(Icons.person),
+      ),
+      validator: (value) => value!.isEmpty ? 'Please fill in author' : null,
+    );
+  }
+
+  TextFormField buildPriceField() {
+    return TextFormField(
+      controller: _price,
+      keyboardType: TextInputType.number,
+      decoration: const InputDecoration(
+        labelText: 'price',
+        icon: Icon(Icons.list),
+      ),
+      validator: (value) {
+        if (value!.isEmpty) {
+          return 'please fill in price';
+        } else {
+          double price = double.parse(value);
+          if (price < 0) {
+            return 'please fill in price';
+          } else {
+            return null;
+          }
+        }
+      },
+    );
+  }
+}
